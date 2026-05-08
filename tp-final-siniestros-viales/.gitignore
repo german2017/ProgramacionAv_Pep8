@@ -1,0 +1,93 @@
+# Bytecode / cache
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Environment variables / secrets
+.env
+.env.*
+!.env.example
+
+# Jupyter / notebooks
+.ipynb_checkpoints/
+*.nbconvert.ipynb
+
+# Google Colab
+.config/
+drive/
+sample_data/
+
+# VS Code
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json.example
+
+# JetBrains / editors
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Local data
+data/raw/*
+data/processed/*
+
+# Heavy outputs / generated artifacts
+outputs/*
+outputs/models/*
+outputs/metrics/*
+outputs/figures/*
+
+# Serialized models and ML artifacts
+*.joblib
+*.pkl
+*.pickle
+*.sav
+*.onnx
+*.h5
+*.keras
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
+*.bak
+*.log
+
+# Local MongoDB data / dumps
+mongodb/
+mongo-data/
+db/
+dump/
+*.bson
+
+# Keep directory structure
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+!outputs/
+!outputs/models/
+!outputs/metrics/
+!outputs/figures/
+!outputs/models/.gitkeep
+!outputs/metrics/.gitkeep
+!outputs/figures/.gitkeep
