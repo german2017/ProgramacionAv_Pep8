@@ -8,6 +8,23 @@ El proyecto busca aplicar un flujo completo de trabajo de ciencia de datos: carg
 
 Desarrollar una solucion de ciencia de datos que permita analizar siniestros viales y construir modelos predictivos capaces de estimar una variable objetivo definida a partir del dataset disponible.
 
+## Data Understanding / Diccionario de Datos
+
+El proyecto incorpora el diccionario oficial del dataset **Siniestros viales** publicado en Buenos Aires Data por la Secretaria de Transporte, la Subsecretaria de Planificacion de la Movilidad y el Observatorio de Movilidad y Seguridad Vial de la Ciudad Autonoma de Buenos Aires.
+
+La documentacion completa se encuentra en `docs/data_dictionary.md`. Esa seccion registra el significado oficial de las variables, las definiciones institucionales de categorias y los riesgos de interpretacion asociados al uso de codigos administrativos.
+
+Puntos clave para el analisis:
+
+- `SD` se interpreta como **Sin Datos**. No debe tratarse como categoria sustantiva del fenomeno vial.
+- `gravedad_victima` representa la severidad de la lesion y debe considerarse una variable ordinal: `LEVE < GRAVE < MORTAL`.
+- `LEVE` identifica personas lesionadas con alta medica dentro de las 24hs siguientes al siniestro o hechos sin datos sobre gravedad de lesiones.
+- `GRAVE` identifica lesiones que exigen hospitalizacion de al menos 24 hs o atencion especializada.
+- `MORTAL` identifica victimas que fallecen dentro de los 30 dias de producido el siniestro vial por causas directa o indirectamente atribuibles al hecho.
+- Las categorias de `modo_desplazamiento_victima` y `rol_victima` tienen semantica de dominio y no deben interpretarse solo por su etiqueta textual.
+
+El uso del diccionario de datos mejora la calidad analitica porque conecta cada variable con su definicion institucional y con el proceso de produccion de la informacion. Esta metadata reduce riesgos de sesgo conceptual, evita codificaciones incorrectas y ayuda a definir tratamientos consistentes para faltantes, categorias ambiguas y variables ordinales.
+
 ## Tecnologias Usadas
 
 - Python
@@ -97,6 +114,11 @@ Ejecutar notebooks de analisis exploratorio desde:
 ```text
 notebooks/
 ```
+
+Notebooks principales:
+
+- `notebooks/01_eda.ipynb`: analisis exploratorio con seccion de diccionario oficial y tratamiento ordinal de `gravedad_victima`.
+- `notebooks/02_preprocessing.ipynb`: criterios de preprocesamiento basados en metadata, sin modificar el dataset original ni alterar pipelines existentes.
 
 Ejecutar el pipeline principal de entrenamiento:
 
