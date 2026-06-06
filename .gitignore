@@ -28,6 +28,7 @@ firebase_credentials.json
 # Jupyter / notebooks
 .ipynb_checkpoints/
 *.nbconvert.ipynb
+.ipython_papermill/
 
 # Google Colab
 .config/
