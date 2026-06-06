@@ -132,6 +132,38 @@ Ejecutar la carga hacia MongoDB:
 python scripts/load_to_db.py
 ```
 
+### Dashboard final
+
+El dashboard de storytelling del TP se encuentra en:
+
+```text
+notebooks/09_dashboard_storytelling.ipynb
+```
+
+El notebook consume el dataset procesado y los artefactos ya generados en `outputs/`. No modifica notebooks anteriores y exporta el dashboard final con rutas portables basadas en `pathlib`. Para la seccion de matriz de confusion, reconstruye el `RandomForestClassifier` ganador con el mismo split y parametros de evaluacion usados en los notebooks de comparacion y validacion.
+
+### Dashboards generados
+
+Los dashboards HTML se almacenan automaticamente dentro del repositorio en:
+
+```text
+outputs/dashboards/
+```
+
+El archivo principal generado es:
+
+```text
+outputs/dashboards/dashboard_siniestros.html
+```
+
+Para regenerarlo, abrir y ejecutar el notebook `notebooks/09_dashboard_storytelling.ipynb` desde VS Code, Jupyter o Papermill. Tambien puede ejecutarse desde consola si se desea automatizar la exportacion:
+
+```bash
+python -c "import json; ns={}; nb=json.load(open('notebooks/09_dashboard_storytelling.ipynb', encoding='utf-8')); [exec(cell['source'], ns) for cell in nb['cells'] if cell.get('cell_type')=='code']"
+```
+
+Para usarlo en la defensa, abrir `outputs/dashboards/dashboard_siniestros.html` en un navegador. El proceso registra su ejecucion en `logs/pipeline.log`.
+
 ### Firebase / Firestore
 
 La etapa de Firebase persiste resultados ya generados. No reentrena modelos y no modifica `data/raw/`.
@@ -173,10 +205,25 @@ Tambien se puede revisar la etapa desde:
 
 Colecciones creadas en Firestore:
 
-- `datasets`: metadata del dataset procesado `siniestros_limpio_enriquecido`, incluyendo filas, columnas, tipos, fuente y version.
-- `model_results`: documento `modelo_ganador` con metricas holdout, resumen de comparacion, F1 promedio, desvio estandar y configuracion del modelo seleccionado.
-- `cross_validation`: documento `experimento_actual` con estrategia `StratifiedKFold`, tabla comparativa, fold scores y criterio de seleccion.
-- `logs`: documento `eventos` y subcoleccion `items` con eventos de auditoria del proceso de carga.
+- `datasets`: documento `siniestros_limpio_enriquecido` con metadata completa del dataset limpio y preprocesado: cantidad de filas/columnas, columnas, tipos de datos, nulos por columna, ruta local del CSV procesado, version, hash SHA-256, fecha de ejecucion y una muestra de las primeras 200 filas. No se sube el dataset completo para evitar una carga innecesariamente pesada.
+- `model_results`: documento `modelo_ganador` con resultados del modelo seleccionado: metricas holdout, metricas de Cross Validation, matriz/resumen de comparacion, features usadas, target, criterio de seleccion, modelo elegido y fecha de ejecucion. Tambien conserva el resumen explicito `modelo_ganador` para consulta directa.
+- `model_config`: documento `configuracion_modelo_ganador` con la configuracion/parametrizacion del experimento: modelo seleccionado, modelos evaluados, target, features numericas y categoricas, features excluidas por leakage/target, configuracion de preprocesamiento, `class_weight`, `random_state`, estrategia de Cross Validation y hash/version del dataset usado.
+- `predictions`: documento `predicciones_experimento_actual` con el resumen de predicciones disponible en los artefactos existentes: distribucion de clases predichas, matriz de confusion, classification report, filas de test y tasa positiva. La carga no reentrena ni genera inferencias nuevas; por eso se marca `predicciones_fila_a_fila_disponibles=false`.
+- `pipeline_logs`: documento `eventos` y subcoleccion `items` con eventos de auditoria de inicio/fin de la carga. El mismo proceso tambien escribe en `logs/pipeline.log`.
+
+Verificar la carga en Firebase:
+
+1. Entrar a Firebase Console.
+2. Abrir el proyecto configurado en `FIREBASE_PROJECT_ID`.
+3. Ir a Firestore Database.
+4. Confirmar que existan las colecciones `datasets`, `model_results`, `model_config`, `predictions` y `pipeline_logs`.
+5. Revisar que los documentos contengan `fecha_ejecucion`, `target`, `modelo_seleccionado`, `features`, `dataset_hash_sha256` y los campos de metricas/predicciones correspondientes.
+
+El log local de la etapa queda disponible en:
+
+```text
+logs/pipeline.log
+```
 
 ## Estado Actual del Proyecto
 

@@ -10,7 +10,9 @@ from typing import Any
 DATASET_COLLECTION = "datasets"
 MODEL_RESULTS_COLLECTION = "model_results"
 CROSS_VALIDATION_COLLECTION = "cross_validation"
-LOGS_COLLECTION = "logs"
+MODEL_CONFIG_COLLECTION = "model_config"
+PREDICTIONS_COLLECTION = "predictions"
+PIPELINE_LOGS_COLLECTION = "pipeline_logs"
 
 
 def _utc_now_iso() -> str:
@@ -32,6 +34,25 @@ def guardar_dataset_metadata(
     logger.info("Metadata subida en %s/%s", DATASET_COLLECTION, dataset_id)
 
 
+def guardar_model_config(
+    db: Any,
+    document_id: str,
+    model_config: dict[str, Any],
+    logger: logging.Logger,
+) -> None:
+    """Guarda configuracion y parametrizacion del modelo y del preprocesamiento."""
+    logger.info("Subiendo configuracion del modelo: %s", document_id)
+    db.collection(MODEL_CONFIG_COLLECTION).document(document_id).set(
+        model_config,
+        merge=True,
+    )
+    logger.info(
+        "Configuracion subida en %s/%s",
+        MODEL_CONFIG_COLLECTION,
+        document_id,
+    )
+
+
 def guardar_metricas_modelo(
     db: Any,
     document_id: str,
@@ -47,21 +68,40 @@ def guardar_metricas_modelo(
     logger.info("Metricas subidas en %s/%s", MODEL_RESULTS_COLLECTION, document_id)
 
 
-def guardar_resultado_cross_validation(
+def guardar_cross_validation(
     db: Any,
     document_id: str,
-    cross_validation_results: dict[str, Any],
+    cross_validation_payload: dict[str, Any],
     logger: logging.Logger,
 ) -> None:
-    """Guarda resultados completos de Cross Validation."""
+    """Guarda resultados de validacion cruzada del experimento."""
     logger.info("Subiendo resultados de Cross Validation: %s", document_id)
     db.collection(CROSS_VALIDATION_COLLECTION).document(document_id).set(
-        cross_validation_results,
+        cross_validation_payload,
         merge=True,
     )
     logger.info(
         "Cross Validation subida en %s/%s",
         CROSS_VALIDATION_COLLECTION,
+        document_id,
+    )
+
+
+def guardar_predicciones(
+    db: Any,
+    document_id: str,
+    predictions_payload: dict[str, Any],
+    logger: logging.Logger,
+) -> None:
+    """Guarda predicciones o resumen auditable de predicciones disponibles."""
+    logger.info("Subiendo predicciones/resumen: %s", document_id)
+    db.collection(PREDICTIONS_COLLECTION).document(document_id).set(
+        predictions_payload,
+        merge=True,
+    )
+    logger.info(
+        "Predicciones/resumen subido en %s/%s",
+        PREDICTIONS_COLLECTION,
         document_id,
     )
 
@@ -81,7 +121,7 @@ def guardar_modelo_seleccionado(
     logger.info("Modelo seleccionado guardado en %s/%s", MODEL_RESULTS_COLLECTION, document_id)
 
 
-def guardar_log_evento(
+def guardar_pipeline_log(
     db: Any,
     event_payload: dict[str, Any],
     logger: logging.Logger,
@@ -92,7 +132,7 @@ def guardar_log_evento(
         "created_at": event_payload.get("created_at", _utc_now_iso()),
     }
     logger.info("Subiendo evento de log a Firestore: %s", event.get("event"))
-    logs_doc = db.collection(LOGS_COLLECTION).document("eventos")
+    logs_doc = db.collection(PIPELINE_LOGS_COLLECTION).document("eventos")
     logs_doc.set({"last_event": event, "updated_at": _utc_now_iso()}, merge=True)
     logs_doc.collection("items").add(event)
-    logger.info("Evento registrado en %s/eventos/items", LOGS_COLLECTION)
+    logger.info("Evento registrado en %s/eventos/items", PIPELINE_LOGS_COLLECTION)
