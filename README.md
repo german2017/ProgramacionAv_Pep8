@@ -1,5 +1,9 @@
 # 🚦 Predicción y Análisis de Siniestros Viales
 
+## 📌 Resumen Ejecutivo
+
+Este proyecto aborda la predicción de gravedad en siniestros viales a partir de un dataset administrativo de víctimas y hechos de tránsito. El flujo desarrollado incluye EDA, limpieza, enriquecimiento, definición de target, entrenamiento, comparación de modelos y validación cruzada. El problema se formuló como una clasificación binaria para detectar casos graves o mortales. El modelo seleccionado fue `RandomForestClassifier`, por su mejor equilibrio entre F1 Score, Recall y estabilidad. Los resultados se documentan en artefactos JSON, se persisten en Firestore y se comunican mediante un dashboard final. La ejecución completa quedó automatizada con Papermill a través de `scripts/run_pipeline.py`.
+
 Trabajo práctico final universitario de Ciencia de Datos orientado al análisis, procesamiento, modelado predictivo, persistencia y comunicación de resultados sobre un dataset de siniestros viales.
 
 El proyecto implementa un flujo completo de trabajo: análisis exploratorio, limpieza, enriquecimiento de datos, definición de hipótesis, construcción del target, entrenamiento de modelos, comparación de desempeño, validación cruzada, persistencia de resultados en Firestore, generación de dashboard final, logging, auditoría y automatización con Papermill.
@@ -7,6 +11,12 @@ El proyecto implementa un flujo completo de trabajo: análisis exploratorio, lim
 ## 🎯 Objetivo General
 
 Desarrollar una solución de Ciencia de Datos que permita analizar siniestros viales y construir modelos predictivos capaces de anticipar la ocurrencia de casos graves o mortales a partir de información disponible sobre la víctima y el contexto del hecho.
+
+## 🔍 Hipótesis de Trabajo
+
+A partir del análisis exploratorio se planteó la hipótesis de que ciertas características de la víctima, su rol dentro del siniestro y el modo de desplazamiento permiten anticipar parcialmente la probabilidad de que el hecho derive en consecuencias graves o mortales.
+
+Para contrastar esta hipótesis se construyó un problema de clasificación supervisada binaria, agrupando las categorías `GRAVE` y `MORTAL` como clase positiva y `LEVE` como clase negativa.
 
 ## ✅ Estado Actual del Proyecto
 
@@ -70,7 +80,8 @@ tp-final-siniestros-viales/
 │   ├── raw/                         # Datos originales sin modificar
 │   └── processed/                   # Datasets limpios y enriquecidos
 ├── docs/
-│   └── data_dictionary.md           # Diccionario de datos y criterios de dominio
+│   ├── data_dictionary.md           # Diccionario de datos y criterios de dominio
+│   └── dashboard_preview.png        # Vista previa del dashboard final
 ├── logs/
 │   └── pipeline.log                 # Registro de ejecución del pipeline
 ├── notebooks/
@@ -161,6 +172,29 @@ Métricas en Cross Validation:
 
 El modelo obtuvo el mejor F1 Score promedio entre los modelos evaluados y mantuvo baja variabilidad entre folds, lo que indica una mejor estabilidad relativa de generalización. Además, su Recall elevado muestra una fuerte capacidad para detectar casos graves o mortales, criterio especialmente importante en el contexto del problema.
 
+## 🏆 Resultados Principales
+
+| Indicador | Valor |
+|---|---:|
+| Registros analizados | 62.076 |
+| Casos graves o mortales | 4,96% |
+| Modelo ganador | RandomForestClassifier |
+| Accuracy | 0,720 |
+| Recall | 0,898 |
+| F1 Score | 0,242 |
+| Verdaderos Positivos | 553 |
+| Falsos Negativos | 63 |
+
+Los resultados muestran que es posible anticipar parcialmente la gravedad de un siniestro vial utilizando información disponible sobre la víctima y el contexto del hecho. El modelo seleccionado logró detectar la mayoría de los casos graves o mortales manteniendo un comportamiento estable durante la validación cruzada.
+
+## 🔎 Hallazgos Relevantes
+
+El análisis permitió identificar un fuerte desbalanceo del dataset, con predominio de casos leves y una proporción reducida de eventos graves o mortales. Esta característica condiciona la interpretación de métricas agregadas como Accuracy y justifica el uso de Recall y F1 Score como criterios centrales de evaluación.
+
+También se observó que variables asociadas al modo de desplazamiento y al rol de la víctima aportan información relevante para caracterizar situaciones de mayor riesgo. Las diferencias entre grupos vulnerables sugieren que la exposición vial no es homogénea y que determinados perfiles pueden concentrar una mayor proporción relativa de consecuencias severas.
+
+Desde una perspectiva aplicada, el proyecto destaca la importancia de minimizar falsos negativos, ya que no detectar un caso potencialmente grave representa un costo mayor que generar alertas adicionales para revisión.
+
 ## 🔥 Firebase y Firestore
 
 La etapa de Firebase persiste resultados ya generados. No reentrena modelos y no modifica `data/raw/`.
@@ -233,6 +267,12 @@ El archivo HTML exportado se almacena automáticamente en:
 ```text
 outputs/dashboards/dashboard_siniestros.html
 ```
+
+## 📈 Vista Previa del Dashboard
+
+![Dashboard](docs/dashboard_preview.png)
+
+La vista previa resume la estructura del dashboard final: KPIs principales, análisis del desbalanceo, desempeño del modelo ganador, matriz de confusión y narrativa de conclusiones. El archivo completo e interactivo se encuentra en `outputs/dashboards/dashboard_siniestros.html`.
 
 El dashboard incluye:
 
@@ -354,9 +394,16 @@ python scripts/run_pipeline.py
 | `outputs/cross_validation_results.json` | Resultados de validación cruzada. |
 | `outputs/dashboards/dashboard_siniestros.html` | Dashboard final del proyecto. |
 | `outputs/figures/confusion_matrix_random_forest.png` | Matriz de confusión del modelo ganador. |
+| `docs/dashboard_preview.png` | Vista previa del dashboard para documentación. |
 | `outputs/pipeline_audit_report.md` | Informe de auditoría de notebooks. |
 | `outputs/pipeline_execution_report.json` | Reporte de ejecución automatizada con Papermill. |
 | `logs/pipeline.log` | Log consolidado del pipeline. |
+
+## 🎓 Aprendizajes del Proyecto
+
+El desarrollo del proyecto permitió consolidar aprendizajes centrales para un flujo de Ciencia de Datos reproducible. El EDA resultó fundamental para comprender la estructura del dataset, detectar desbalanceo de clases y orientar la construcción del target. La calidad de datos y la interpretación del diccionario oficial fueron claves para evitar decisiones de modelado conceptualmente débiles.
+
+El feature engineering permitió transformar variables administrativas en insumos analíticos más útiles para el modelo. La validación cruzada aportó una evaluación más robusta de la estabilidad del desempeño, mientras que Firestore incorporó trazabilidad y auditoría de experimentos. Finalmente, la automatización con Papermill permitió convertir notebooks exploratorios en un pipeline ejecutable, reproducible y documentado.
 
 ## 🚀 Trabajos Futuros
 
@@ -368,6 +415,8 @@ python scripts/run_pipeline.py
 - Despliegue mediante API.
 
 ## 👥 Autores
+
+Completar con los integrantes del grupo antes de la entrega.
 
 - Nombre Apellido.
 - Nombre Apellido.
